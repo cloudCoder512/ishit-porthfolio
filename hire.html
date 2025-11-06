@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hire Me — Ishit</title>
+<style>
+  /* ─── Theme with :root variables ───────────────────────── */
+  :root{
+    --bg:#02040a;
+    --bg-grad-1:#081226;
+    --bg-grad-2:#040915;
+    --card:rgba(255,255,255,0.08);
+    --card-border:rgba(255,255,255,0.12);
+    --text:#e6eef8;
+    --muted:#9ca3af;
+    --accent:#7dd3fc;
+    --accent-ink:#03121a;
+    --success:#97e9b5;
+    --error:#ff9aa2;
+    --radius:16px;
+    --pad:16px;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --blur:8px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial,Segoe UI,Roboto,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 10% -10%, var(--bg-grad-1) 0%, transparent 60%),
+      radial-gradient(1000px 600px at 120% 10%, #0b1a33 0%, transparent 55%),
+      var(--bg);
+    overflow:hidden;
+  }
+
+  /* Fullscreen Three.js mount */
+  #sceneMount{
+    position:fixed; inset:0; z-index:-1;
+  }
+  /* subtle overlay tint to improve contrast */
+  .overlay{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(2,6,23,.45));
+  }
+
+  /* Centered card */
+  .wrap{
+    position:relative; z-index:2;
+    min-height:100dvh; display:grid; place-items:center; padding:var(--pad);
+  }
+  .card{
+    width:min(440px, 92vw);
+    background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(var(--blur));
+    padding:clamp(18px, 3vw, 28px);
+  }
+  h1{margin:0 0 8px; font-size:clamp(28px, 4vw, 36px); color:#cfe9ff}
+  .sub{color:var(--muted); margin:0 0 14px; font-size:14px}
+
+  label{display:block; font-weight:600; margin:10px 0 6px}
+  input, textarea{
+    width:100%; padding:12px 12px;
+    border-radius:12px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);
+    color:var(--text); outline:none; font-size:15px;
+  }
+  input::placeholder, textarea::placeholder{color:var(--muted)}
+  textarea{resize:vertical; min-height:110px}
+
+  .row{margin-bottom:10px}
+
+  .btn{
+    width:100%; padding:12px 14px; border-radius:12px; border:1px solid transparent;
+    background:var(--accent); color:var(--accent-ink); font-weight:800;
+    cursor:pointer; transition:transform .15s ease, filter .2s ease, box-shadow .2s ease;
+    box-shadow:0 6px 18px rgba(125,211,252,.25);
+  }
+  .btn:hover{transform:translateY(-2px); filter:saturate(1.08)}
+  .status{min-height:20px; margin-top:10px; font-weight:700}
+  .ok{color:var(--success)} .err{color:var(--error)}
+
+  /* small utility row for quick contacts */
+  .quick{
+    display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;
+  }
+  .chip{
+    flex:1 1 110px; text-align:center; text-decoration:none; color:var(--text);
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    padding:10px; border-radius:12px;
+  }
+
+  /* tiny footer */
+  .foot{margin-top:12px; color:var(--muted); font-size:12px; text-align:center}
+  .foot a{color:var(--accent); text-decoration:none}
+</style>
+</head>
+<body>
+  <!-- Three.js background -->
+  <div id="sceneMount"></div>
+  <div class="overlay"></div>
+
+  <!-- Foreground content -->
+  <main class="wrap">
+    <section class="card" aria-label="Hire Me Form">
+      <h1>Hire Me</h1>
+      <p class="sub">I design fast, modern & immersive web experiences. Tell me about your project.</p>
+
+      <form id="hireForm" novalidate>
+        <div class="row">
+          <label for="name">Full Name</label>
+          <input id="name" name="user_name" type="text" placeholder="Your name" required />
+        </div>
+        <div class="row">
+          <label for="email">Email</label>
+          <input id="email" name="user_email" type="email" placeholder="you@example.com" required />
+        </div>
+        <div class="row">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Project details, timelines, budget…"></textarea>
+        </div>
+        <button class="btn" type="submit">Send Message</button>
+        <div id="status" class="status" aria-live="polite"></div>
+      </form>
+
+      <div class="quick" aria-label="Quick contacts">
+        <a class="chip" href="mailto:adarshverma912098@gmail.com">📧 Email</a>
+        <a class="chip" href="https://wa.me/916306154686" target="_blank" rel="noopener">💬 WhatsApp</a>
+        <span class="chip">📍 Unnao, UP</span>
+      </div>
+
+      <div class="foot">© 2025 Ishit • <a href="#">All Rights Reserved</a></div>
+    </section>
+  </main>
+
+  <!-- Three.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script>
+    /* ========== THREE.JS WAVES (Apache-like) using :root theme ========== */
+    const mount = document.getElementById('sceneMount');
+    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    mount.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 8, 26);
+
+    // Lights (accent-tinted key + soft ambient)
+    const amb = new THREE.AmbientLight(0xffffff, 0.55); scene.add(amb);
+    const key = new THREE.PointLight(0x7dd3fc, 2.2, 120); key.position.set(18, 20, 10); scene.add(key);
+    const rim = new THREE.PointLight(0x6b8cff, 1.4, 140); rim.position.set(-18, 6, -18); scene.add(rim);
+
+    // Gradient background plane (for subtle depth)
+    // Animated waves plane
+    const planeGeo = new THREE.PlaneGeometry(120, 120, 140, 140);
+    const planeMat = new THREE.MeshStandardMaterial({
+      color: 0x0d1220,
+      metalness: 0.15,
+      roughness: 0.85,
+      emissive: 0x0a0f1a,
+      emissiveIntensity: 0.35,
+      wireframe: false
+    });
+    const plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.rotation.x = -0.9;
+    plane.position.set(0, -6, -6);
+    scene.add(plane);
+
+    // Add optional wireframe overlay for that "grid" vibe
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0x7dd3fc, wireframe: true, transparent: true, opacity: 0.18 });
+    const wire = new THREE.Mesh(planeGeo.clone(), wireMat);
+    wire.rotation.copy(plane.rotation);
+    wire.position.copy(plane.position);
+    scene.add(wire);
+
+    // Animate vertex positions (BufferGeometry)
+    const pos = plane.geometry.attributes.position;
+    const baseZ = new Float32Array(pos.count);
+    for(let i=0;i<pos.count;i++){ baseZ[i] = pos.getZ(i); }
+
+    let t = 0;
+    function updateWaves(dt){
+      t += dt * 0.6;
+      for(let i=0;i<pos.count;i++){
+        const x = pos.getX(i), y = pos.getY(i);
+        const z =
+          Math.sin(x*0.22 + t*1.25)*0.9 +
+          Math.cos(y*0.18 - t*1.10)*1.1 +
+          Math.sin((x+y)*0.08 + t*0.8)*0.7;
+        pos.setZ(i, baseZ[i] + z);
+      }
+      pos.needsUpdate = true;
+      wire.geometry.attributes.position.array.set(plane.geometry.attributes.position.array);
+      wire.geometry.attributes.position.needsUpdate = true;
+    }
+
+    // Mouse parallax
+    let mx = 0, my = 0;
+    window.addEventListener('mousemove', (e)=>{
+      const nx = (e.clientX / window.innerWidth) - 0.5;
+      const ny = (e.clientY / window.innerHeight) - 0.5;
+      mx = nx * 0.6; my = ny * 0.4;
+    });
+
+    // Resize
+    function onResize(){
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', onResize);
+
+    // Animate loop
+    let last = performance.now();
+    function animate(now){
+      const dt = (now - last) / 1000; last = now;
+
+      // gentle camera drift + parallax
+      camera.position.x += ((mx*12) - camera.position.x) * 0.04;
+      camera.position.y += ((-my*6 + 8) - camera.position.y) * 0.04;
+      camera.lookAt(0, -6, -10);
+
+      updateWaves(dt);
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    /* ========== FORM: simple validation + status ========== */
+    const form = document.getElementById('hireForm');
+    const statusEl = document.getElementById('status');
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = (document.getElementById('name').value || '').trim();
+      const email = (document.getElementById('email').value || '').trim();
+      const message = (document.getElementById('message').value || '').trim();
+
+      const ok = name && message && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      statusEl.className = 'status ' + (ok ? 'ok' : 'err');
+      statusEl.textContent = ok
+        ? 'Message prepared ✅ (connect EmailJS to actually send).'
+        : 'Please fill details correctly.';
+      if(ok) form.reset();
+    });
+  </script>
+</body>
+</html>
